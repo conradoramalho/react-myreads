@@ -1,7 +1,8 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import { Select } from 'rmwc/Select';
+import PropTypes from "prop-types";
 
-class Book extends Component {
+class Book extends PureComponent {
     changeShelf = event => {
         const shelf = event.target.value;
         const bookId = this.props.book.id;
@@ -15,20 +16,26 @@ class Book extends Component {
         return (
             <div className="book">
                 <div className="book-top">
-                    <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
+                    <div className="book-cover" style={{ backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
                 </div>
+                <div className="book-title">{book.title}</div>
+                <div className="book-authors">{book.authors}</div>
                 <div>
                     <Select
                         onChange={this.changeShelf}
                         label="Estante"
+                        value={book.shelf}
                         options={{ 'currentlyReading': 'Currently Reading', 'wantToRead': 'Want To Read', 'read': 'Read', 'none': 'None' }}
                     />
                 </div>
-                <div className="book-title">{book.title}</div>
-                <div className="book-authors">{book.authors}</div>
             </div>
         )
     }
+}
+
+Book.propTypes = {
+    book: PropTypes.object.isRequired,
+    updateShelf: PropTypes.func.isRequired
 }
 
 export default Book;

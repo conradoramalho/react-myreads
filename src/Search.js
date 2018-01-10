@@ -1,10 +1,11 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import BooksList from "./BooksList";
 import escapeRegExp from 'escape-string-regexp';
 import sortBy from 'sort-by';
 import { Link } from "react-router-dom";
+import { PropTypes } from "prop-types";
 
-class Search extends Component {
+class Search extends PureComponent {
     state = {
         query: ''
     };
@@ -44,5 +45,10 @@ class Search extends Component {
         )
     }
 }
+
+Search.propTypes = {
+    books: PropTypes.array.isRequired,
+    updateShelf: PropTypes.func.isRequired
+};
 
 export default Search;
