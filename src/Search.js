@@ -1,34 +1,37 @@
 import React, { PureComponent } from "react";
 import BooksList from "./BooksList";
-import escapeRegExp from 'escape-string-regexp';
 import sortBy from 'sort-by';
 import { Link } from "react-router-dom";
 import { PropTypes } from "prop-types";
+import * as BooksAPI from './BooksAPI';
 
 class Search extends PureComponent {
     state = {
-        query: ''
+        books: []
     };
 
     updateQuery = query => {
-        this.setState({ query: query.trim() })
+
+        if (query) {
+            BooksAPI
+                .search(query)
+                .then(books => {
+
+                    if (books.length)
+                        this.setState({ books });
+                    else
+                        this.setState({ books: [] });
+
+                });
+        } else
+            this.setState({ books: [] });
     }
 
     render() {
-        const { books, updateShelf } = this.props;
-        const query = this.state.query;
+        const { updateShelf } = this.props;
+        const { books } = this.state;
 
-        let showingBooks;
-
-        if (query) {
-
-            const match = new RegExp(escapeRegExp(query), 'i');
-            showingBooks = books.filter(book => (match.test(book.title) || match.test(book.authors)));
-
-        } else
-            showingBooks = books;
-
-        showingBooks.sort(sortBy('title'));
+        books.sort(sortBy('title'));
 
         return (
             <div className="search-books">
@@ -39,7 +42,12 @@ class Search extends PureComponent {
                     </div>
                 </div>
                 <div className="search-books-results">
-                    <BooksList shelfName="Result" books={showingBooks} updateShelf={updateShelf}></BooksList>
+                    {
+                        books.length > 0 ? (
+
+                            <BooksList shelfName="Result" books={books} updateShelf={updateShelf}></BooksList>
+                        ) : (<div><p>No book found</p></div>)
+                    }
                 </div>
             </div>
         )
@@ -47,7 +55,6 @@ class Search extends PureComponent {
 }
 
 Search.propTypes = {
-    books: PropTypes.array.isRequired,
     updateShelf: PropTypes.func.isRequired
 };
 

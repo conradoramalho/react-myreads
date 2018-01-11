@@ -5,21 +5,22 @@ import PropTypes from "prop-types";
 class Book extends PureComponent {
     changeShelf = event => {
         const shelf = event.target.value;
-        const bookId = this.props.book.id;
+        const book = this.props.book;
 
-        this.props.updateShelf(bookId, shelf);
+        this.props.updateShelf(book, shelf);
     }
 
     render() {
         const book = this.props.book;
+        const backgroundImage = book.imageLinks ? book.imageLinks.thumbnail : 'http://via.placeholder.com/193x128';
 
         return (
             <div className="book">
                 <div className="book-top">
-                    <div className="book-cover" style={{ backgroundImage: `url(${book.imageLinks.thumbnail})` }}></div>
+                    <div className="book-cover" style={{ backgroundImage: `url(${backgroundImage})` }}></div>
                 </div>
                 <div className="book-title">{book.title}</div>
-                <div className="book-authors">{book.authors}</div>
+                <div className="book-authors">{book.authors.join(', ')}</div>
                 <div>
                     <Select
                         onChange={this.changeShelf}

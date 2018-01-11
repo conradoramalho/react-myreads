@@ -4,8 +4,11 @@ import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
 function ShelfBook(props) {
-    const { currentlyReading, wantToRead, read } = props.booksInShelf;
     const updateShelf = props.updateShelf;
+
+    const currentlyReading = props.books.filter(book => book.shelf === 'currentlyReading');
+    const wantToRead = props.books.filter(book => book.shelf === 'wantToRead');
+    const read = props.books.filter(book => book.shelf === 'read');
 
     return (
         <div className="list-books">
@@ -41,7 +44,7 @@ function ShelfBook(props) {
 }
 
 ShelfBook.propTypes = {
-    booksInShelf: PropTypes.object.isRequired,
+    books: PropTypes.array.isRequired,
     updateShelf: PropTypes.func.isRequired
 }
 

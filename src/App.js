@@ -6,45 +6,37 @@ import * as BooksAPI from './BooksAPI'
 import './App.css';
 
 class BooksApp extends Component {
-  allBooks = [];
-
   state = {
-    books: {
-      currentlyReading: [],
-      wantToRead: [],
-      read: []
-    }
+    books: []
   }
 
   componentDidMount() {
     BooksAPI
       .getAll()
       .then(books => {
-        this.allBooks = books;
 
-        this.setState({
-          books: {
-            currentlyReading: this.allBooks.filter(book => book.shelf === 'currentlyReading'),
-            wantToRead: this.allBooks.filter(book => book.shelf === 'wantToRead'),
-            read: this.allBooks.filter(book => book.shelf === 'read')
-          }
-        })
+        this.setState({ books });
+
       })
   }
 
-  updateShelf = (bookId, shelf) => {
-    const book = this.allBooks.find(book => book.id === bookId);
+  updateShelf = (book, shelf) => {
+    const books = this.state.books;
 
     BooksAPI
       .update(book, shelf)
       .then(shelfs => {
+        book.shelf = shelf;
+
+        if (books.indexOf(book) === -1)
+          books.push(book);
+
+        const currentlyReading = books.filter(book => shelfs.currentlyReading.find(bookId => bookId === book.id));
+        const read = books.filter(book => shelfs.read.find(bookId => bookId === book.id));
+        const wantToRead = books.filter(book => shelfs.wantToRead.find(bookId => bookId === book.id));
 
         this.setState({
-          books: {
-            currentlyReading: this.allBooks.filter(book => shelfs.currentlyReading.find(bookId => book.id === bookId)),
-            wantToRead: this.allBooks.filter(book => shelfs.wantToRead.find(bookId => book.id === bookId)),
-            read: this.allBooks.filter(book => shelfs.read.find(bookId => book.id === bookId))
-          }
+          books: [...currentlyReading, ...read, ...wantToRead]
         });
 
       }, () => { });
@@ -53,9 +45,9 @@ class BooksApp extends Component {
   render() {
     return (
       <div className="app">
-        <Route exact path="/search" render={() => <Search books={this.allBooks} updateShelf={this.updateShelf} />} />
+        <Route exact path="/search" render={() => <Search books={this.state.books} updateShelf={this.updateShelf} />} />
 
-        <Route exact path="/" render={() => <ShelfBooks booksInShelf={this.state.books} updateShelf={this.updateShelf} />} />
+        <Route exact path="/" render={() => <ShelfBooks books={this.state.books} updateShelf={this.updateShelf} />} />
       </div>
     )
   }
