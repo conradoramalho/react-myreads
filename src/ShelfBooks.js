@@ -1,6 +1,7 @@
 import React from "react";
 import BooksList from "./BooksList";
 import PropTypes from "prop-types";
+import { If, Then } from 'react-if';
 import { Link } from "react-router-dom";
 
 function ShelfBook(props) {
@@ -16,25 +17,22 @@ function ShelfBook(props) {
                 <h1>My Reads</h1>
             </div>
             <div className="list-books-content">
-                {
-                    (
-                        currentlyReading.length > 0 &&
+                <If condition={currentlyReading.length > 0}>
+                    <Then>
                         <BooksList shelfName="Currently Reading" updateShelf={updateShelf} books={currentlyReading}></BooksList>
-                    )
-                }
-                {
-                    (
-                        wantToRead.length > 0 &&
-
+                    </Then>
+                </If>
+                <If condition={wantToRead.length > 0}>
+                    <Then>
                         <BooksList shelfName="Want to Read" updateShelf={updateShelf} books={wantToRead}></BooksList>
-                    )
-                }
-                {
-                    (
-                        read.length > 0 &&
+                    </Then>
+                </If>
+
+                <If condition={read.length > 0}>
+                    <Then>
                         <BooksList shelfName="Read" updateShelf={updateShelf} books={read}></BooksList>
-                    )
-                }
+                    </Then>
+                </If>
             </div>
             <div className="open-search">
                 <Link to="/search">Add a book</Link>

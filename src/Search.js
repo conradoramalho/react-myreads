@@ -3,6 +3,8 @@ import BooksList from "./BooksList";
 import sortBy from 'sort-by';
 import { Link } from "react-router-dom";
 import { PropTypes } from "prop-types";
+import { Debounce } from 'react-throttle';
+import { If, Then, Else } from 'react-if';
 import * as BooksAPI from './BooksAPI';
 
 class Search extends PureComponent {
@@ -17,9 +19,21 @@ class Search extends PureComponent {
                 .search(query)
                 .then(books => {
 
-                    if (books.length)
-                        this.setState({ books });
-                    else
+                    if (books.length) {
+                        const myBooks = this.props.books;
+
+                        const booksAux = books.map(book => {
+                            const myBook = myBooks.find(myBook => myBook.id === book.id);
+
+                            if (myBook)
+                                book.shelf = myBook.shelf;
+
+                            return book;
+                        });
+
+                        this.setState({ books: booksAux });
+
+                    } else
                         this.setState({ books: [] });
 
                 });
@@ -38,15 +52,23 @@ class Search extends PureComponent {
                 <div className="search-books-bar">
                     <Link className="close-search" to="/">Close</Link>
                     <div className="search-books-input-wrapper">
-                        <input type="text" placeholder="Search by title or author" onChange={event => this.updateQuery(event.target.value)} />
+                        <Debounce time="400" handler="onChange">
+                            <input type="text" placeholder="Search by title or author" onChange={event => this.updateQuery(event.target.value)} />
+                        </Debounce>
                     </div>
                 </div>
                 <div className="search-books-results">
                     {
-                        books.length > 0 ? (
-
-                            <BooksList shelfName="Result" books={books} updateShelf={updateShelf}></BooksList>
-                        ) : (<div><p>No book found</p></div>)
+                        <If condition={books.length > 0}>
+                            <Then>
+                                <BooksList shelfName="Result" books={books} updateShelf={updateShelf}></BooksList>
+                            </Then>
+                            <Else>
+                                <div>
+                                    <p>No book found</p>
+                                </div>
+                            </Else>
+                        </If>
                     }
                 </div>
             </div>
@@ -55,6 +77,7 @@ class Search extends PureComponent {
 }
 
 Search.propTypes = {
+    books: PropTypes.array.isRequired,
     updateShelf: PropTypes.func.isRequired
 };
 
